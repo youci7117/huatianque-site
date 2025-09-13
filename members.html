@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>花天阙｜成員名單管理</title>
+  <style>
+    body {
+      font-family: "微軟正黑體", serif;
+      background: url('https://i.imgur.com/fuKqW8S.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      color: #f8f4e3;
+    }
+    .container {
+      background-color: rgba(0,0,0,0.65);
+      padding: 30px;
+      margin: 40px auto;
+      width: 90%;
+      max-width: 700px;
+      border-radius: 10px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ffe0b2;
+    }
+    input, select, button {
+      font-size: 16px;
+      margin: 5px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: none;
+    }
+    button {
+      background-color: #ffebcd;
+      color: #4b2e1e;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #ffe4b5;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background-color: #fffaf0;
+      color: #333;
+      padding: 6px;
+      margin: 4px 0;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .role-section {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧑‍🤝‍🧑 花天阙｜成員名單管理</h1>
+    <div>
+      <label>新增成員：</label>
+      <input type="text" id="newMemberName" placeholder="輸入成員名稱">
+      <select id="newMemberRole">
+        <option value="tank">承傷</option>
+        <option value="dps">輸出</option>
+        <option value="heal">治療</option>
+      </select>
+      <button onclick="addMember()">新增</button>
+    </div>
+    <div class="role-section">
+      <h3>🛡️ 承傷</h3><ul id="tankList"></ul>
+      <h3>⚔️ 輸出</h3><ul id="dpsList"></ul>
+      <h3>💊 治療</h3><ul id="healList"></ul>
+    </div>
+  </div>
+
+<script>
+let memberData = JSON.parse(localStorage.getItem("memberData") || "[]");
+
+function saveMemberData() {
+  localStorage.setItem("memberData", JSON.stringify(memberData));
+  renderLists();
+}
+
+function addMember() {
+  const name = document.getElementById("newMemberName").value.trim();
+  const role = document.getElementById("newMemberRole").value;
+  if (!name) return alert("請輸入名稱");
+  if (memberData.some(m => m.name === name)) return alert("已有同名成員");
+  memberData.push({ name, role });
+  document.getElementById("newMemberName").value = "";
+  saveMemberData();
+}
+
+function removeMember(name) {
+  memberData = memberData.filter(m => m.name !== name);
+  saveMemberData();
+}
+
+function renderLists() {
+  const roles = { tank: "tankList", dps: "dpsList", heal: "healList" };
+  for (let role in roles) {
+    const ul = document.getElementById(roles[role]);
+    ul.innerHTML = "";
+    memberData.filter(m => m.role === role).forEach(member => {
+      const li = document.createElement("li");
+      li.textContent = member.name;
+      const btn = document.createElement("button");
+      btn.textContent = "❌";
+      btn.onclick = () => removeMember(member.name);
+      li.appendChild(btn);
+      ul.appendChild(li);
+    });
+  }
+}
+
+renderLists();
+</script>
+</body>
+</html>

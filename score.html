@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>花天阙｜分數累計系統</title>
+  <style>
+    body {
+      font-family: "微軟正黑體", serif;
+      background: url('https://i.imgur.com/NhSPU7P.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+    }
+    .container {
+      background-color: rgba(0,0,0,0.65);
+      padding: 30px;
+      margin: 40px auto;
+      width: 90%;
+      max-width: 800px;
+      border-radius: 12px;
+    }
+    h1 {
+      text-align: center;
+      color: #ffe0b2;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fffaf0;
+      color: #333;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    button {
+      padding: 6px 12px;
+      font-size: 16px;
+      margin: 4px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #ffe4b5;
+      color: #4b2e1e;
+    }
+    button:hover {
+      background-color: #ffdead;
+    }
+    .top-buttons {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧮 花天阙｜分數累計系統（月）</h1>
+    <div class="top-buttons">
+      <button onclick="resetScores()">🔁 重置全部分數</button>
+      <button onclick="saveScores()">💾 儲存分數</button>
+    </div>
+    <table id="scoreTable">
+      <thead>
+        <tr><th>排名</th><th>姓名</th><th>分數</th><th>操作</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+<script>
+let memberData = JSON.parse(localStorage.getItem("memberData") || "[]");
+let scoreData = JSON.parse(localStorage.getItem("scoreData") || "{}");
+
+function initScores() {
+  memberData.forEach(m => {
+    if (!(m.name in scoreData)) {
+      scoreData[m.name] = 0;
+    }
+  });
+}
+
+function renderTable() {
+  const tbody = document.querySelector("#scoreTable tbody");
+  tbody.innerHTML = "";
+  const sorted = Object.entries(scoreData).sort((a, b) => b[1] - a[1]);
+  sorted.forEach(([name, score], index) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${index + 1}</td>
+      <td>${name}</td>
+      <td>${score}</td>
+      <td><button onclick="addScore('${name}')">＋1</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function addScore(name) {
+  scoreData[name] += 1;
+  renderTable();
+}
+
+function resetScores() {
+  if (confirm("確定要重置所有分數？")) {
+    for (let name in scoreData) {
+      scoreData[name] = 0;
+    }
+    renderTable();
+  }
+}
+
+function saveScores() {
+  localStorage.setItem("scoreData", JSON.stringify(scoreData));
+  alert("分數已儲存！");
+}
+
+initScores();
+renderTable();
+</script>
+</body>
+</html>
