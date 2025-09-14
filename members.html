@@ -81,7 +81,23 @@
   </div>
 
 <script>
-let memberData = JSON.parse(localStorage.getItem("memberData") || "[]");
+let memberData = JSON.parse(localStorage.getItem("memberData"));
+
+if (!memberData || memberData.length === 0) {
+  // 🔰 預設成員資料（含分類）
+  memberData = [
+    { name: "大大兔白", role: "dps" },
+    { name: "蓝倾颜", role: "heal" },
+    { name: "风吹血", role: "dps" },
+    { name: "泪怆", role: "heal" },
+    { name: "严遵", role: "heal" },
+    { name: "喵喵喵妹妹", role: "dps" }
+    { name: "穆晟溪", role: "dps" }
+    { name: "洛雪声", role: "dps" }
+  
+  ];
+  localStorage.setItem("memberData", JSON.stringify(memberData));
+}
 
 function saveMemberData() {
   localStorage.setItem("memberData", JSON.stringify(memberData));
