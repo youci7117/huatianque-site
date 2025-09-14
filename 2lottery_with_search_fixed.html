@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<title>花天阙｜抽獎系統</title>
+<style>
+    body {
+      font-family: "微軟正黑體", serif;
+      background: url('https://i.imgur.com/ICZHJ7u.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+    }
+    .container {
+      background-color: rgba(0, 0, 0, 0.65);
+      padding: 20px;
+      margin: 40px auto;
+      width: 90%;
+      max-width: 800px;
+      border-radius: 12px;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #fdf5e6;
+    }
+    button, input {
+      padding: 6px 12px;
+      margin: 5px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+    }
+    button {
+      background-color: #ffefd5;
+      color: #4b2e1e;
+    }
+    button:hover {
+      background-color: #f4e2c3;
+    }
+    .grid-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .grid-item {
+      background-color: #fffaf0;
+      color: #4b2e1e;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #d2b48c;
+      flex: 1 0 30%;
+    }
+    .stats-card {
+      background-color: #fffaf0;
+      color: #4b2e1e;
+      border: 1px solid #d2b48c;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+<h1>🎲 花天阙｜抽獎系統</h1>
+<p>請輸入總輪次：
+    <input id="totalRounds" min="1" type="number" value="5"/>
+<button onclick="startGame()">開始</button>
+</p>
+<h2>成員名單</h2>
+<form id="prizeForm"></form>
+<button onclick="recordSelection()">記錄本輪</button>
+<h3>目前輪次：<span id="round">0</span></h3>
+<div id="statsSection">
+<h3>勾選統計</h3>
+<div id="statsTable"></div>
+</div>
+<div id="finalDrawSection" style="display:none;">
+<p>抽出人數：<input id="drawCount" min="1" type="number" value="1"/>
+<button onclick="finalDraw()">抽獎</button></p>
+<div id="result"></div>
+</div>
+</div>
+<script>
+let round = 0;
+let totalRounds = 5;
+let prizeCount = {};
+let qualifiedPool = [];
+const minQualification = 1;
+let memberData = JSON.parse(localStorage.getItem("memberData") || "[]");
+
+function startGame() {
+  totalRounds = parseInt(document.getElementById("totalRounds").value);
+  round = 0;
+  prizeCount = {};
+  qualifiedPool = [];
+  document.getElementById("round").textContent = round;
+  buildForm();
+  updateStatsTable();
+  document.getElementById("finalDrawSection").style.display = "none";
+  document.getElementById("result").innerHTML = "";
+}
+
+function buildForm() {
+  const form = document.getElementById("prizeForm");
+  form.innerHTML = "";
+  const container = document.createElement("div");
+  container.className = "grid-container";
+  memberData.forEach(member => {
+    const label = document.createElement("label");
+    label.className = "grid-item";
+    label.innerHTML = `<input type="checkbox" value="${member.name}"> ${member.name}`;
+    container.appendChild(label);
+  });
+  form.appendChild(container);
+}
+
+function recordSelection() {
+  const checkboxes = document.querySelectorAll('#prizeForm input[type="checkbox"]:checked');
+  if (checkboxes.length === 0) {
+    alert("請至少選一人");
+    return;
+  }
+  checkboxes.forEach(cb => {
+    const name = cb.value;
+    prizeCount[name] = (prizeCount[name] || 0) + 1;
+  });
+  round++;
+  document.getElementById("round").textContent = round;
+  updateStatsTable();
+
+  if (round >= totalRounds) {
+    qualifiedPool = Object.entries(prizeCount).filter(([name, count]) => count >= minQualification).map(([name]) => name);
+    document.getElementById("finalDrawSection").style.display = "block";
+  }
+}
+
+function updateStatsTable() {
+  const table = document.getElementById("statsTable");
+  table.innerHTML = "";
+  Object.entries(prizeCount).forEach(([name, count]) => {
+    const div = document.createElement("div");
+    div.className = "stats-card";
+    div.textContent = `${name}：${count} 次`;
+    table.appendChild(div);
+  });
+}
+
+function finalDraw() {
+  const count = parseInt(document.getElementById("drawCount").value);
+  if (count > qualifiedPool.length) {
+    alert("抽出數大於符合條件人數！");
+    return;
+  }
+  const shuffled = qualifiedPool.sort(() => Math.random() - 0.5);
+  const winners = shuffled.slice(0, count);
+  document.getElementById("result").innerHTML = winners.map(n => `🎉 ${n}`).join("<br>");
+}
+
+startGame();
+
+
+function filterAndRenderMembers() {
+    const keyword = document.getElementById("memberSearch").value.toLowerCase();
+    const members = document.querySelectorAll(".member");
+
+    members.forEach(member => {
+        const name = member.textContent.toLowerCase();
+        member.style.display = name.includes(keyword) ? "inline-block" : "none";
+    });
+}
+</script>
+<script>
+function searchMembers() {
+    var input = document.getElementById("searchInput");
+    var filter = input.value.toLowerCase();
+    var items = document.querySelectorAll(".member-list li");
+    items.forEach(function(item) {
+        var text = item.textContent.toLowerCase();
+        item.style.display = text.includes(filter) ? "" : "none";
+    });
+}
+</script></body>
+</html>
