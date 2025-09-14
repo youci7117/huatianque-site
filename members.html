@@ -78,6 +78,9 @@
       <h3>⚔️ 輸出</h3><ul id="dpsList"></ul>
       <h3>💊 治療</h3><ul id="healList"></ul>
     </div>
+    <div id="totalCount" style="margin-top: 20px; font-size: 18px; color: #ffe0b2;">
+  成員總數：0 人
+</div>
   </div>
 
 <script>
@@ -196,6 +199,9 @@ function renderLists() {
       ul.appendChild(li);
     });
   }
+  
+  // 顯示總成員數
+document.getElementById("totalCount").textContent = `成員總數：${memberData.length} 人`;
 }
 
 renderLists();
